@@ -63,8 +63,8 @@ Validate $? "Change to Default DIR"
 unzip /tmp/frontend.zip &>>$LOG_FILE
 Validate $? "Extract the frontend content."
 
-rm -rf /etc/nginx/nginx.conf &>>$LOG_FILE
-Validate $? "Remove default nginx conf"
+# rm -rf /etc/nginx/nginx.conf &>>$LOG_FILE
+# Validate $? "Remove default nginx conf"
 
 cp $SCRIPT_DIR/nginx.conf /etc/nginx/default.d/expense.conf &>>$LOG_FILE
 Validate $? "Coping Nginx Configuration"
