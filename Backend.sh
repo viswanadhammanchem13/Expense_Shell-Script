@@ -1,5 +1,5 @@
 #!/bin/bash
-START_TIMETIME=$(date +%s)
+START_TIME=$(date +%s)
 USERID=$(id -u) #Stores User UID
 R="\e[31m"
 G="\e[32m"
@@ -84,7 +84,7 @@ Validate $? "Starting Backend Service"
 dnf install mysql -y
 Validate $? "Installing MySQL Client"
 
-mysql -h mysql.manchem.site -u root -p$MYSQL_ROOT_PWD -e 'use cities' &>>$LOG_FILE
+mysql -h mysql.manchem.site -u root -p$MYSQL_ROOT_PWD -e 'use transactions' &>>$LOG_FILE
 if [ $? -eq 0 ]
 then
     echo -e "Data is already loaded into MySQL ... $Y SKIPPING $N"
