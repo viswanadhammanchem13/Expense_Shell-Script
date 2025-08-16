@@ -1,5 +1,5 @@
 #!/bin/bash
-TIME=$(date)
+START_TIMETIME=$(date +%s)
 USERID=$(id -u) #Stores User UID
 R="\e[31m"
 G="\e[32m"
@@ -22,6 +22,9 @@ then #!= 0 Enter into Loop
 else #If =0 Enter into else loop
     echo -e "$Y Please proceed the Installation $N" | tee -a $LOG_FILE #Prints this messages on Screen
 fi #Condition Ends
+
+echo "Please Enter Root Password to Setup:"
+read -s MYSQL_ROOT_PWD
 
 Validate (){ #Function Definition
     if [ $1 -eq 0 ] #Checks If Exit code equls to Zero, Yes
