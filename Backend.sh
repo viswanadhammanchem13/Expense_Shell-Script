@@ -42,55 +42,60 @@ Validate $? "Enabling NodeJS:20"
 dnf install nodejs -y &>>$LOG_FILE
 Validate $? "Installling NodeJS"
 
-id roboshop
+id expense
 if [ $? -eq 0 ]
 then
-    echo "Roboshop user is already created...Skipping"
+    echo "Expense user is already created...Skipping"
 else 
-    echo "Roboshop user is not created...Creating"
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
-    Validate $? "Creating Roboshop user"
+    echo "expense user is not created...Creating"
+    useradd --system --home /app --shell /sbin/nologin --comment "expense user" expense
+    Validate $? "Creating expense user"
 fi
 
 mkdir  -p /app
 Validate $? "Creating /app Dir"
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOG_FILE
 Validate $? "Downloading the Code"
 
 rm -rf /app/*
 cd /app &>>$LOG_FILE
-unzip /tmp/catalogue.zip &>>$LOG_FILE
+unzip /tmp/backend.zip &>>$LOG_FILE
 Validate $? "Unzip the Code"
 
 npm install &>>$LOG_FILE
 Validate $? "Dependencies installions"
 
-cp $SCRIPT_DIR/Catalogue.Service /etc/systemd/system/catalogue.service &>>$LOG_FILE
-Validate $? "Coping Catalogue Service"
+cp $SCRIPT_DIR/Backend.Service /etc/systemd/system/backend.service &>>$LOG_FILE
+Validate $? "Coping Backend Service"
 
 systemctl daemon-reload &>>$LOG_FILE
 Validate $? "System Daemon Reload"
 
-systemctl enable catalogue &>>$LOG_FILE
-Validate $? "Enabling Catalogue Service"
+systemctl enable backend &>>$LOG_FILE
+Validate $? "Enabling Backend Service"
 
-systemctl start catalogue &>>$LOG_FILE
-Validate $? "Starting Catalogue Service"
+systemctl start backend &>>$LOG_FILE
+Validate $? "Starting Backend Service"
 
-cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>>LOG_FILE
-Validate $? "Coping MongoDB Repo"
+dnf install mysql -y
+Validate $? "Installing MySQL Client"
 
-dnf install mongodb-mongosh -y
-Validate $? "Installing MongoDB Client"
-
-STATUS=$(mongosh --host mongodb.daws84s.site --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
-if [ $STATUS -eq 0 ]
+mysql -h mysql.manchem.site -u root -p$MYSQL_ROOT_PWD -e 'use cities' &>>$LOG_FILE
+if [ $? -eq 0 ]
 then
-    echo " Data is Already Loaded"
+    echo -e "Data is already loaded into MySQL ... $Y SKIPPING $N"
 else
-    echo "Data is Not Loaded..Loading"
-    mongosh --host mongodb.manchem.site  </app/db/master-data.js
-    Validate $? "Loading the Data"
+    echo -e "Data is Not loaded into MySQL ... $Y Loading $N"
+    mysql -h mysql.manchem.site -uroot -p$MYSQL_ROOT_PWD < /app/schema/backend.sql
 fi
+Validate $? "Loading data into MySQL"
+
+systemctl restart backend &>>$LOG_FILE
+Validate $? "Restarting Backend  Service"
+
+END_TIME=$(date +%s)
+TOTAL_TIME=$(( $END_TIME - $START_TIME ))
+
+echo -e "Script exection completed successfully, $Y time taken: $TOTAL_TIME seconds $N" | tee -a $LOG_FILE
 

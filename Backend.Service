@@ -1,14 +1,11 @@
 [Unit]
-Description = Catalogue Service
+Description = Backend Service
 
 [Service]
-User=roboshop
-Environment=MONGO=true
-// highlight-start
-Environment=MONGO_URL="mongodb://mongodb.manchem.site:27017/catalogue"
-// highlight-end
-ExecStart=/bin/node /app/server.js
-SyslogIdentifier=catalogue
+User=expense
+Environment=DB_HOST="mysql.manchem.site"
+ExecStart=/bin/node /app/index.js
+SyslogIdentifier=backend
 
 [Install]
 WantedBy=multi-user.target
