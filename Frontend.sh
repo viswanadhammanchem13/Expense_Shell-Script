@@ -6,7 +6,7 @@ G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
 
-LOGS_Folder="/var/log/Roboshop"
+LOGS_Folder="/var/log/Expense"
 SCRIPT_NAME=$(echo $0 | cut -d "." -f1)
 LOG_FILE="$LOGS_Folder/$SCRIPT_NAME.log"
 SCRIPT_DIR=$PWD
@@ -54,7 +54,7 @@ Validate $? "Starting Nginx Packages"
 rm -rf /usr/share/nginx/html/* &>>$LOG_FILE
 Validate $? "Removing Default Content"
 
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$LOG_FILE
+curl -o /tmp/frontend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip &>>$LOG_FILE
 Validate $? "Download the frontend content"
 
 cd /usr/share/nginx/html &>>$LOG_FILE
@@ -66,8 +66,8 @@ Validate $? "Extract the frontend content."
 rm -rf /etc/nginx/nginx.conf &>>$LOG_FILE
 Validate $? "Remove default nginx conf"
 
-cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf &>>$LOG_FILE
-Validate $? "Coping Catalogue Service"
+cp $SCRIPT_DIR/nginx.conf /etc/nginx/default.d/expense.conf &>>$LOG_FILE
+Validate $? "Coping Nginx Configuration"
 
 systemctl restart nginx &>>$LOG_FILE
 Validate $? "Restarting Nginx Service" 
